@@ -1,0 +1,1 @@
+DDPClient = Npm.require("ddp");

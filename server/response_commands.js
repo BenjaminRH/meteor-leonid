@@ -8,11 +8,11 @@ galaxy.addListener('message#meteor', function (from, message) {
 		var command = message.match(/\S+/g)[0];
 		switch (command) {
 			case '!np':
-				galaxy.say('#meteor', "No problem! " + from + " was happy to help. If you have any other questions, jump right in and ask!");
-				break;
+			galaxy.say('#meteor', "No problem! " + from + " was happy to help. If you have any other questions, jump right in and ask!");
+			break;
 			case '!mrt':
 			case '!meteorite':
-				if (words.length === 0) {
+			if (words.length === 0) {
 					// Default information
 					galaxy.say('#meteor', "Meteorite is a Meteor version manager and package manager. It provides an easy way to run different versions of Meteor, use non-core packages, and to install packages from the Atmosphere package repository. http://oortcloud.github.io/meteorite/");
 				} else {
@@ -20,43 +20,103 @@ galaxy.addListener('message#meteor', function (from, message) {
 					galaxy.say('#meteor', "That feature is coming soon...");
 				}
 				break;
-			case '!atmo':
-			case '!atmosphere':
+				case '!atmo':
+				case '!atmosphere':
+				case '!package':
+				case '!packages':
 				if (words.length === 0) {
 					// Default information
 					galaxy.say('#meteor', "Atmosphere is a community-maintained Meteor smart package repository. It works with Meteorite, a Meteor version and smart package manager. https://atmosphere.meteor.com/");
 				} else {
 					// Info about a specific package
-					galaxy.say('#meteor', "That feature is coming soon...");
+					galaxy.say('#meteor', getPackageInfo(words[0]));
 				}
 				break;
-			case '!docs':
+				case '!docs':
 				galaxy.say('#meteor', "That feature is coming soon...");
 				break;
-			case '!dataja':
+				case '!dataja':
 				galaxy.say('#meteor', "Don't ask to ask, Just ask!");
 				break;
-			case '!ugt':
+				case '!ugt':
 				galaxy.say('#meteor', "It is always morning when someone comes into a channel. We call that Universal Greeting Time http://www.total-knowledge.com/~ilya/mips/ugt.html")
 				break;
-			default:
+				default:
 				galaxy.say('#meteor', invalidCommandResponseList[ _.random(0, invalidCommandResponseList.length - 1) ]);
+			}
 		}
-	}
-});
+	});
 
 var invalidCommandResponseList = [
-	"What's that? A command?",
-	"Whiskey Tango Foxtrot rodger",
-	"What am I supposed to say to that?",
-	"!NotACommand",
-	"!foobar",
-	"! to you too",
-	"!wtf",
-	"!lalalalalalala",
-	"I don't recognize that",
-	"You talkin' to " + boldString("me") + "?",
-	"! your momma",
-	"!!!!! !?!?!?!?",
-	"!... !... !... !... FLINCH!!!"
+"What's that? A command?",
+"Whiskey Tango Foxtrot rodger",
+"What am I supposed to say to that?",
+"!NotACommand",
+"!foobar",
+"! to you too",
+"!wtf",
+"!lalalalalalala",
+"I don't recognize that",
+"You talkin' to " + boldString("me") + "?",
+"! your momma",
+"!!!!! !?!?!?!?",
+"!... !... !... !... FLINCH!!!"
 ];
+
+// Say important package shit
+var getPackageInfo = function (name) {
+	var package = _.findWhere(atmosphere.collections.packages, { name: name });
+
+	if (package !== undefined) {
+		// Whee! Give them the package
+		var sep = boldString("; ");
+
+		return "[PACKAGE INFO]: " +
+			boldString(package.name) +sep+
+			"Current version: " + package.latest +sep+
+			"Description: " + package.description +sep+
+			"By: " + package.author.name +sep+
+			package.homepage;
+	}
+	else if (package === undefined) {
+		// That package doesn't exist
+		var similar = searchPackages(name);
+
+		if (similar !== false) {
+			// There are similar packages!
+			return "[PACKAGE INFO]: " +
+				"I could not find any package named '" + name + "'. " +
+				"Perhaps you meant one of these: " +
+				similar.join(', ');
+		} else {
+			// There are no similar packages either
+			return "Sorry, I could not find that package, or any similar packages.";
+		}
+	}
+}
+
+// Search for package
+var searchPackages = function (query) {
+	// Find matching packages
+	var results = _.filter(
+		atmosphere.collections.packages,
+		function (package) {
+			return package.name.score(query) > 0.65;
+		}
+	);
+
+	if (! results.length > 0) {
+		// There were no matching packages
+		return false;
+	}
+
+	// Take just the name property
+	results = _.pluck(results, 'name');
+
+	// Change package names to lower case
+	results = _.map(results, function (value) {
+  		return value.toLowerCase();
+	});
+
+	return results; // Finally, give them results
+}
