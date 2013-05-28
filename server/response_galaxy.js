@@ -7,11 +7,11 @@ galaxy.addListener('pm', function (from, message) {
 galaxy.addListener('message#meteor', function (from, message) {
 	message = message.toLowerCase();
 
-	if (message.indexOf('that\'s "hello" in ') !== -1 || message.indexOf('thats "hello" in ') !== -1) {
-		// Somebody is being clever...
-		galaxy.say('#meteor', "Well aren't we clever...");
-	}
-	else if (stringContainsArrayItem(message, helloWordList) && message.indexOf('galaxy') !== -1) {
+	// if (message.indexOf('that\'s "hello" in ') !== -1 || message.indexOf('thats "hello" in ') !== -1) {
+	// 	// Somebody is being clever...
+	// 	galaxy.say('#meteor', "Well aren't we clever...");
+	// }
+	if (stringContainsArrayItem(message, helloWordList) && message.indexOf('galaxy') !== -1) {
 		// Somebody said hello!
 		galaxy.say('#meteor', helloResponseList[ _.random(0, helloResponseList.length - 1) ] + ' ' + from);
 	}
@@ -19,10 +19,10 @@ galaxy.addListener('message#meteor', function (from, message) {
 		// Somebody mentioned me! Yeah!
 		galaxy.say('#meteor', mentionResponseList[ _.random(0, mentionResponseList.length - 1) ]);
 	}
-	else if (message.indexOf(' bot') !== -1) {
-		// Somebody mentioned a bot, but not me!?!?
-		galaxy.say('#meteor', noMentionResponseList[ _.random(0, noMentionResponseList.length - 1) ]);
-	}
+	// else if (message.indexOf(' bot') !== -1) {
+	// 	// Somebody mentioned a bot, but not me!?!?
+	// 	galaxy.say('#meteor', noMentionResponseList[ _.random(0, noMentionResponseList.length - 1) ]);
+	// }
 });
 
 var mentionResponseList = [
@@ -45,7 +45,9 @@ var noMentionResponseList = [
 	"bot ain't got nuthin on me",
 	"I'm the coolest bot around",
 	"There are bots. And then there is Galaxy bot.",
-	"I'm the only bot around..."
+	"I'm the only bot around...",
+	"You talkin' to me? Well I'm the only one here. Who the fuck do you think you're talking to?",
+	"You talkin' to " + boldString("me") + "?"
 ];
 
 var helloResponseList = [

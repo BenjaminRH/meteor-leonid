@@ -1,17 +1,10 @@
-// Create the configuration
-var config = {
-	channels: ["#meteor"],
-	server: "irc.freenode.net",
-	botName: "Galaxy",
-	userName: "galaxy",
-	realName: "Galaxy: The Meteor IRC Bot"
-};
-
 // Create the bot
-galaxy = new IRC.Client(config.server, config.botName, {
-	channels: config.channels,
-	userName: config.userName,
-	realName: config.realName
+galaxy = new IRC.Client("irc.freenode.net", "Galaxy", {
+	channels: ["#meteor"],
+	userName: "galaxy",
+	realName: "Galaxy: The Meteor IRC Bot",
+	floodProtection: true,
+	floodProtectionDelay: 1000,
 });
 
 // Catch errors
