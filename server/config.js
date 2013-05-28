@@ -4,12 +4,14 @@ var config = {
 	server: "irc.freenode.net",
 	botName: "Galaxy",
 	userName: "galaxy",
-	realName: "Galaxy: Meteor IRC Bot"
+	realName: "Galaxy: The Meteor IRC Bot"
 };
 
 // Create the bot
 galaxy = new IRC.Client(config.server, config.botName, {
-	channels: config.channels
+	channels: config.channels,
+	userName: config.userName,
+	realName: config.realName
 });
 
 // Catch errors
