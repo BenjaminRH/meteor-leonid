@@ -24,6 +24,7 @@ Meteor.setInterval(keepServer, 1000*60*5);
 
 // Define the object
 GalaxyStore = {};
+GalaxyStore.loadedPackages = false;
 
 
 // CONNECT WITH ATMOSPHERE PACKAGE REPOSITORY
@@ -41,6 +42,7 @@ atmosphere.connect(function (error) {
 
 	atmosphere.subscribe('packages', [], function () {
 		// Packages have been loaded!
+		GalaxyStore.loadedPackages = true;
 		console.log('Loaded Atmosphere packages');
 		// atmosphere.collections.packages
 	});
