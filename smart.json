@@ -1,0 +1,7 @@
+{
+	"packages": {
+		"irc": {
+			"git": "https://github.com/Pent/meteor-node-irc"
+		}
+	}
+}

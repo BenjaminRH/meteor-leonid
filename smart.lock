@@ -1,0 +1,22 @@
+{
+  "meteor": {
+    "git": "https://github.com/meteor/meteor.git",
+    "branch": "master",
+    "commit": "5d736d4bf0448c7db1f9b47124dfafc34a9631bb"
+  },
+  "dependencies": {
+    "basePackages": {
+      "irc": {
+        "git": "https://github.com/Pent/meteor-node-irc",
+        "branch": "master"
+      }
+    },
+    "packages": {
+      "irc": {
+        "git": "https://github.com/Pent/meteor-node-irc",
+        "branch": "master",
+        "commit": "66d3068afd76ccbba1eccbc9bda810a1a993e4b0"
+      }
+    }
+  }
+}
