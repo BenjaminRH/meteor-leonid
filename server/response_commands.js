@@ -30,8 +30,9 @@ galaxy.addListener('message#meteor', function (from, message) {
 					galaxy.say('#meteor', "Atmosphere is a community-maintained Meteor smart package repository. It works with Meteorite, a Meteor version and smart package manager. https://atmosphere.meteor.com/");
 				} else {
 					// Info about a specific package
-					console.log('Package docs requested: ' + words[0]); // Debug
-					galaxy.say('#meteor', getPackageInfo(words[0]));
+					var query = message.replace('!atmo ', '').replace('!atmosphere ', '').replace('!package ', '').replace('!packages ', '');
+					console.log('Package docs requested: ' + query); // Debug
+					galaxy.say('#meteor', getPackageInfo(query));
 				}
 				break;
 			case '!docs':
@@ -89,7 +90,7 @@ var getPackageInfo = function (name) {
 			if (similar !== false) {
 				// There are similar packages!
 				return "[PACKAGE INFO]: " +
-					"I could not find any package named '" + pkg.name + "'. " +
+					"I could not find any package named '" + name + "'. " +
 					"Perhaps you meant one of these: " +
 					similar.join(', ');
 			} else {
@@ -109,7 +110,7 @@ var searchPackages = function (query) {
 	var results = _.filter(
 		atmosphere.collections.packages,
 		function (pkg) {
-			return pkg.name.score(query) > 0.65;
+			return pkg.name.score(query) > 0.6;
 		}
 	);
 
