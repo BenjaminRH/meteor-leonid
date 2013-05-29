@@ -8,7 +8,7 @@ galaxy.addListener('message#meteor', function (from, message) {
 		var command = lowerMessage.match(/\S+/g)[0];
 		switch (command) {
 			case '!np':
-				var person = words.length === 0 ? "" : message.replace('!np ') + ": ";
+				var person = words.length === 0 ? "" : message.replace('!np ', '') + ": ";
 				galaxy.say('#meteor', person + "No problem! " + from + " was happy to help. If you have any other questions, jump right in and ask!");
 				break;
 			case '!mrt':
