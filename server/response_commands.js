@@ -1,14 +1,15 @@
 // Respond to commands
 galaxy.addListener('message#meteor', function (from, message) {
-	message = message.toLowerCase();
+	lowerMessage = message.toLowerCase();
 
 	if (message[0] === '!') {
 		// It's a command!
-		var words = message.match(/\w+/g).slice(1);
-		var command = message.match(/\S+/g)[0];
+		var words = lowerMessage.match(/\w+/g).slice(1);
+		var command = lowerMessage.match(/\S+/g)[0];
 		switch (command) {
 			case '!np':
-				galaxy.say('#meteor', "No problem! " + from + " was happy to help. If you have any other questions, jump right in and ask!");
+				var person = words.length === 0 ? "" : message.replace('!np ') + ": ";
+				galaxy.say('#meteor', person + "No problem! " + from + " was happy to help. If you have any other questions, jump right in and ask!");
 				break;
 			case '!mrt':
 			case '!meteorite':
@@ -25,12 +26,13 @@ galaxy.addListener('message#meteor', function (from, message) {
 			case '!atmosphere':
 			case '!package':
 			case '!packages':
+			case '!pkg':
 				if (words.length === 0) {
 					// Default information
 					galaxy.say('#meteor', "Atmosphere is a community-maintained Meteor smart package repository. It works with Meteorite, a Meteor version and smart package manager. https://atmosphere.meteor.com/");
 				} else {
 					// Info about a specific package
-					var query = message.replace('!atmo ', '').replace('!atmosphere ', '').replace('!package ', '').replace('!packages ', '');
+					var query = lowerMessage.replace('!atmo ', '').replace('!atmosphere ', '').replace('!package ', '').replace('!packages ', '');
 					console.log('Package docs requested: ' + query); // Debug
 					galaxy.say('#meteor', getPackageInfo(query));
 				}
@@ -44,8 +46,25 @@ galaxy.addListener('message#meteor', function (from, message) {
 			case '!ugt':
 				galaxy.say('#meteor', "It is always morning when someone comes into a channel. We call that Universal Greeting Time http://www.total-knowledge.com/~ilya/mips/ugt.html")
 				break;
+			case '!devs':
+			case '!people':
+				galaxy.say('#meteor', 'The Meteor team: Geoff Schmidt (@immir), Matt DeBergalis (@debergalis), Nick Martin (@n1mmy), David Greenspan (@DavidLG), Avital Oliver, David Glasser (@glasser), Kristy Hilands (@khilands), Jade Wang (@qiqing), and Naomi Seyfer (@sixolet)');
+				break;
+			case '!list':
+			case '!commands':
+				galaxy.say('#meteor', "[GALAXY HELP]: " + listCommands());
+				break;
+			case '!command':
+			case '!help':
+				if (words.length > 0) {
+					var query = lowerMessage.replace('!command ', '').replace('!help ', '');
+					galaxy.say('#meteor', "[GALAXY HELP]: " + helpCommand(query));
+				} else {
+					galaxy.say('#meteor', "[GALAXY HELP]: " + listCommands());
+				}
+				break;
 			default:
-				galaxy.say('#meteor', invalidCommandResponseList[ _.random(0, invalidCommandResponseList.length - 1) ]);
+				galaxy.say(from, invalidCommandResponseList[ _.random(0, invalidCommandResponseList.length - 1) ]);
 		}
 	}
 });
@@ -66,7 +85,76 @@ var invalidCommandResponseList = [
 	"!... !... !... !... FLINCH!!!"
 ];
 
-// Say important package shit
+var commands = [
+	[['!mrt', '!meteorite'], ["Basic information about Meteorite. Aliases: $aliases"]],
+	[['!atmo', '!atmosphere', '!package', '!pkg', '!packages'], ["Usage: $command <package>. Lookup an Atmosphere package. If used without an argument, basic information about Atmosphere. Aliases: $aliases"]],
+	[['!list', '!commands'], ["List of Galaxy commands"]],
+	[['!command', '!help'], ["Usage: $command <command>. Lookup a Galaxy command, and provide information about it. Aliases: $aliases"]],
+	[['!devs', '!people'], ["Members of the Meteor team"]],
+	[['!np'], ["Usage: !np <user>. Provides a 'no problem' message when a user thanks you for your help. If used without an argument, does not address the message to the specific user you helped"]],
+	[['!dataja'], ["'Don't ask to ask, Just ask!'"]],
+	[['!ugt'], ["Basic information about Universal Greeting Time"]]
+];
+
+// Get list of all commands separately
+var allCommands = [];
+_.each(commands, function (item) {
+	allCommands.push(item[0]);
+});
+allCommands = _.flatten(allCommands);
+
+// List of Galaxy bot commands
+var listCommands = function () {
+	list = [];
+	_.each(commands, function (command) {
+		list.push(command[0][0]);
+	});
+	return "Available commands (use !command <command> for specific info on a command): " + list.join(', ');
+}
+
+// Specific help on a command
+var helpCommand = function (command) {
+	if (command[0] !== '!')
+		command = '!' + command;
+
+	var result = _.filter(commands, function (item) {
+		return _.contains(item[0], command);
+	})[0];
+
+	if (result.length === 0) {
+		// No matching command.
+		var similarCommands = similarGalaxyCommands(command);
+		if (similarCommands === false) {
+			// There were no similar commands either
+			return "Sorry, I could not find that command, or any similar commands. " + listCommands();
+		} else {
+			// There were similar commands!
+			return "I could not find any command '" + command + "'. Perhaps you meant one of these: " + similarCommands.join(', ');
+		}
+	}
+
+	var info = result[1][0];
+	var aliases = result[0].join(', ');
+
+	return info.replace('$command', command).replace('$aliases', aliases);
+}
+
+// Get similar Galaxy commands
+var similarGalaxyCommands = function (query) {
+	var results = _.filter(allCommands, function (command) {
+		return command.score(query) > 0.6;
+	});
+
+	if (results.length > 0) {
+		// There were matching packages!
+		return results;
+	} else {
+		// There were no matching packages
+		return false;
+	}
+}
+
+// Important package shit
 var getPackageInfo = function (name) {
 	if (GalaxyStore.loadedPackages === true) {
 		// We've loaded the packages, continue
@@ -85,7 +173,7 @@ var getPackageInfo = function (name) {
 		}
 		else if (pkg === undefined) {
 			// That package doesn't exist
-			var similar = searchPackages(name);
+			var similar = findSimilar(name, atmosphere.collections.packages, 'name');
 
 			if (similar !== false) {
 				// There are similar packages!
@@ -105,12 +193,12 @@ var getPackageInfo = function (name) {
 }
 
 // Search for package
-var searchPackages = function (query) {
+var findSimilar = function (query, collection, property) {
 	// Find matching packages
 	var results = _.filter(
-		atmosphere.collections.packages,
-		function (pkg) {
-			return pkg.name.score(query) > 0.6;
+		collection,
+		function (thing) {
+			return thing[property].score(query) > 0.6;
 		}
 	);
 
@@ -120,7 +208,7 @@ var searchPackages = function (query) {
 	}
 
 	// Take just the name property
-	results = _.pluck(results, 'name');
+	results = _.pluck(results, property);
 
 	// Change package names to lower case
 	results = _.map(results, function (value) {
