@@ -121,7 +121,7 @@ var helpCommand = function (command) {
 		return _.contains(item[0], command);
 	})[0];
 
-	if (result.length === 0) {
+	if (typeof result === 'undefined' || result.length === 0) {
 		// No matching command.
 		var similarCommands = similarGalaxyCommands(command);
 		if (similarCommands === false) {
@@ -160,7 +160,7 @@ var getPackageInfo = function (name) {
 		// We've loaded the packages, continue
 		var pkg = _.findWhere(atmosphere.collections.packages, { name: name });
 
-		if (pkg !== undefined) {
+		if (typeof pkg !== 'undefined') {
 			// Whee! Give them the package
 			var sep = boldString("; ");
 
@@ -171,7 +171,7 @@ var getPackageInfo = function (name) {
 				"By: " + pkg.author.name +sep+
 				pkg.homepage;
 		}
-		else if (pkg === undefined) {
+		else if (typeof pkg === 'undefined') {
 			// That package doesn't exist
 			var similar = findSimilar(name, atmosphere.collections.packages, 'name');
 
@@ -202,7 +202,7 @@ var findSimilar = function (query, collection, property) {
 		}
 	);
 
-	if (! results.length > 0) {
+	if (typeof results !== 'undefined' || results.length === 0) {
 		// There were no matching packages
 		return false;
 	}
