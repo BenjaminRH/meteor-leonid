@@ -19,12 +19,14 @@ galaxy.addListener('error', function (message) {
 
 var keepServer = function () {
 	// Random bla
-	galaxy.connect();
+	galaxy.disconnect(function () {
+		galaxy.connect();
+	});
 	console.log('Bump server online status');
 }
 
 // Ensure the server remains online
-Meteor.setInterval(keepServer, 1000*60*5);
+Meteor.setInterval(keepServer, 1000*60*30);
 
 // Define the object
 GalaxyStore = {};
