@@ -5,9 +5,12 @@ galaxy = new IRC.Client("irc.freenode.net", "Galaxy", {
 	realName: "Galaxy: The Meteor IRC Bot",
 	floodProtection: true,
 	floodProtectionDelay: 1000,
+	autoConnect: false
 });
 
-console.log('Loaded IRC'); // Startup message
+galaxy.connect(function () {
+	console.log('Loaded IRC'); // Startup message
+});
 
 // Catch errors
 galaxy.addListener('error', function (message) {
@@ -16,6 +19,7 @@ galaxy.addListener('error', function (message) {
 
 var keepServer = function () {
 	// Random bla
+	galaxy.connect();
 	console.log('Bump server online status');
 }
 
